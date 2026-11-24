@@ -4,7 +4,7 @@
 
 *From-scratch, zero-dependency Pocket Language Model (temporary codename: PLM) — featuring Llama-3/Qwen-style Decoder-Only Transformer (RMSNorm, RoPE, SwiGLU, GQA, weight tying), custom Hungarian+English BPE tokenizer, Q8/Q4_0 block quantization, binary `.plm` export, and a portable C99 inference runtime.*
 
-> **Státusz:** `v0.3` (architektúra, BPE tokenizáló, SGD tanító ciklus + checkpoint, Q4/Q8 kvantálás, bináris export és **Q4_0 matvec + CPU benchmark C99 runtime** — 100% tesztelve).  
+> **Státusz:** `v0.4` (architektúra, BPE tokenizáló, SGD tanító ciklus + checkpoint, Q4/Q8 kvantálás, Q4_0 C99 runtime, **Android/Termux `Makefile` + `ANDROID.md`**, és **SQLite FTS5 helyi `rag_lite` memória** — 100% tesztelve).  
 > **Licenc:** Apache 2.0 · **Készítette:** Pék Richárd · [cuppashot.hu](https://cuppashot.hu)
 
 ---

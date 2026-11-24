@@ -7,6 +7,7 @@ from plm.config import PRESETS
 from plm.export_bin import export_plm_header
 from plm.model import TinyPlmModel
 from plm.quantize import dequantize_q4_blocks, dequantize_q8, mse, quantize_q4_blocks, quantize_q8
+from plm.rag_lite import RagLiteMemory
 from plm.tokenizer import BpeTokenizer
 from plm.train import TrainableMiniLM
 
@@ -63,6 +64,14 @@ class TestPlm(unittest.TestCase):
             loaded = TrainableMiniLM.load_checkpoint(ckpt)
             self.assertAlmostEqual(lm.loss(ids), loaded.loss(ids), places=6)
             self.assertEqual(lm.generate(ids[0], 6), loaded.generate(ids[0], 6))
+
+    def test_rag_lite_sqlite_fts5(self):
+        mem = RagLiteMemory()
+        mem.add_note("n1", "MAGMA", "Moduláris csapat- és projektmenedzsment SaaS platform.")
+        mem.add_note("n2", "PLM", "Telefonon futó nyílt forráskódú mini nyelvi modell C99 motorral.")
+        ctx = mem.build_context("C99 nyelvi modell telefonon", top_k=1)
+        self.assertIn("[n2]", ctx)
+        self.assertIn("PLM", ctx)
 
 
 if __name__ == "__main__":

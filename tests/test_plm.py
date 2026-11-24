@@ -8,6 +8,7 @@ from plm.export_bin import export_plm_header
 from plm.model import TinyPlmModel
 from plm.quantize import dequantize_q4_blocks, dequantize_q8, mse, quantize_q4_blocks, quantize_q8
 from plm.tokenizer import BpeTokenizer
+from plm.train import TrainableMiniLM
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -47,6 +48,20 @@ class TestPlm(unittest.TestCase):
             subprocess.run(["gcc", "-O2", "-std=c99", str(ROOT / "c_runtime/plm.c"), "-lm", "-o", str(exe_path)], check=True)
             res = subprocess.run([str(exe_path), str(bin_path)], capture_output=True, text=True, check=True)
             self.assertIn("PLM1 OK", res.stdout)
+
+    def test_training_loop_reduces_loss_and_saves_checkpoint(self):
+        corpus = "CuppaShot PLM mobil AI modell. CuppaShot PLM gyors! " * 4
+        tok = BpeTokenizer.train(corpus, num_merges=16)
+        ids = tok.encode(corpus)
+        lm = TrainableMiniLM(vocab_size=256 + len(tok.merges), seed=1)
+        hist = lm.train_steps(ids, steps=35, lr=1.5)
+        self.assertGreater(hist[0], hist[-1] * 2.0)
+        with tempfile.TemporaryDirectory() as td:
+            ckpt = Path(td) / "plm_ckpt.json"
+            lm.save_checkpoint(ckpt)
+            loaded = TrainableMiniLM.load_checkpoint(ckpt)
+            self.assertAlmostEqual(lm.loss(ids), loaded.loss(ids), places=6)
+            self.assertEqual(lm.generate(ids[0], 6), loaded.generate(ids[0], 6))
 
 
 if __name__ == "__main__":

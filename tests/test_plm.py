@@ -45,9 +45,10 @@ class TestPlm(unittest.TestCase):
             bin_path = Path(td) / "tiny.plm"
             exe_path = Path(td) / "plm_run"
             export_plm_header(cfg, [0.25 * (i + 1) for i in range(cfg.d_model)], bin_path)
-            subprocess.run(["gcc", "-O2", "-std=c99", str(ROOT / "c_runtime/plm.c"), "-lm", "-o", str(exe_path)], check=True)
+            subprocess.run(["gcc", "-O3", "-std=c99", "-Wall", "-Wextra", str(ROOT / "c_runtime/plm.c"), "-lm", "-o", str(exe_path)], check=True)
             res = subprocess.run([str(exe_path), str(bin_path)], capture_output=True, text=True, check=True)
             self.assertIn("PLM1 OK", res.stdout)
+            self.assertIn("q4_bench_ms=", res.stdout)
 
     def test_training_loop_reduces_loss_and_saves_checkpoint(self):
         corpus = "CuppaShot PLM mobil AI modell. CuppaShot PLM gyors! " * 4
